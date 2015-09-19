@@ -19,6 +19,7 @@ import (
 //WriteGo is a function which takes the output of json.Unmarshal and writes out
 //some nicely formatted go code to an io.Writer. Run gofmt on it anyway.
 func WriteGo(input interface{}, name string, w io.Writer) error {
+	_ = "breakpoint"
 
 	code, err := generateGo(name, input)
 	fset := token.NewFileSet()
@@ -37,12 +38,10 @@ func GetType(input interface{}, name string, w io.Writer) error {
 	if input == nil {
 		return nil
 	}
-	if name != "" {
-		defer w.Write([]byte("  `json:\"" + name + "\"`\n"))
-	}
 	switch input.(type) {
 	default:
 		w.Write([]byte(getExportableName(name) + " " + reflect.TypeOf(input).Name()))
+		writeJSONtag(name, w)
 		return nil
 	case map[string]interface{}:
 		return getTypes(input.(map[string]interface{}), name, w)
@@ -62,6 +61,7 @@ func getTypes(input map[string]interface{}, name string, w io.Writer) error {
 
 	}
 	w.Write([]byte("}"))
+	writeJSONtag(name, w)
 	return nil
 }
 
@@ -71,7 +71,13 @@ func getArrayTypes(input []interface{}, name string, w io.Writer) error {
 		return nil
 	}
 	w.Write([]byte(getExportableName(name) + " []"))
-	return GetType(input[0], "", w)
+	err := GetType(input[0], "", w)
+	if err != nil {
+		return err
+	}
+	writeJSONtag(name, w)
+	return nil
+
 }
 
 func getExportableName(name string) string {
@@ -93,4 +99,10 @@ func generateGo(name string, thing interface{}) (string, error) {
 	}
 	w.Flush()
 	return b.String(), nil
+}
+
+func writeJSONtag(name string, w io.Writer) {
+	if name != "" {
+		w.Write([]byte("  `json:\"" + name + "\"`\n"))
+	}
 }

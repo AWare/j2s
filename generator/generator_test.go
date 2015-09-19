@@ -95,7 +95,7 @@ func TestEmptyArray(t *testing.T) {
 	}
 	var b bytes.Buffer
 	w := bufio.NewWriter(&b)
-	GetType(m, "x", w)
+	WriteGo(m, "x", w)
 	w.Flush()
 
 	fmt.Println(b.String())
