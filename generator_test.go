@@ -13,6 +13,7 @@ import (
 	"github.com/jmcvetta/napping"
 )
 
+//TODO: Write test cases.
 func TestLeaf(t *testing.T) {
 	/*var b bytes.Buffer
 	w := bufio.NewWriter(&b)*/
@@ -31,10 +32,9 @@ func TestLeaf(t *testing.T) {
 
 }
 
-func TestArray(t *testing.T) {
-
-}
-
+//Ideally this should test some JSON that's stored here as a file.
+//Write the generated code to a file
+//And try and unmarshall against this.
 func TestComplexJSON(t *testing.T) {
 	var result map[string]interface{}
 	var b bytes.Buffer
@@ -78,17 +78,6 @@ func TestStruct(t *testing.T) {
 
 	fmt.Println(b.String())
 
-}
-
-func runGenerator(t *testing.T, name string, thing interface{}) string {
-	var b bytes.Buffer
-	w := bufio.NewWriter(&b)
-	err := GetType(thing, name, w)
-	if err != nil {
-		t.Error(err)
-	}
-	w.Flush()
-	return (b.String())
 }
 
 type pw int
