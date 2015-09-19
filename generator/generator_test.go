@@ -32,6 +32,28 @@ func TestLeaf(t *testing.T) {
 
 }
 
+func TestWriter(t *testing.T) {
+	/*var b bytes.Buffer
+	w := bufio.NewWriter(&b)*/
+	var a pw
+	m := make(map[string]interface{})
+	m["something"] = "hello"
+	m["cat"] = 5
+	n := make(map[string]interface{})
+	n["a"] = "b"
+	m["a"] = n
+	err := WriteGo(m, "x", a)
+	if err != nil {
+		t.Error(err)
+	}
+	//w.Flush()
+	//a := b.String()
+	//if a != "x generator.leaf\n" {
+	//		t.Error("Expecting 'x generator.leaf', got " + a)
+	//}
+
+}
+
 //Ideally this should test some JSON that's stored here as a file.
 //Write the generated code to a file
 //And try and unmarshall against this.

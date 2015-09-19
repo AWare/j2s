@@ -6,6 +6,7 @@ package generator
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"go/parser"
 	"go/printer"
 	"go/token"
@@ -23,7 +24,7 @@ func WriteGo(input interface{}, name string, w io.Writer) error {
 	fset := token.NewFileSet()
 	ast, err := parser.ParseFile(fset, "", code, parser.AllErrors)
 	if err != nil {
-		return err
+		return fmt.Errorf("Looks like the code we generated wasn't valid go:\n %s \n The code generated looked like:\n %s", err.Error(), code)
 	}
 	printer.Fprint(w, fset, ast)
 	return nil
@@ -83,10 +84,9 @@ func generateGo(name string, thing interface{}) (string, error) {
 	var b bytes.Buffer
 	w := bufio.NewWriter(&b)
 	w.Write([]byte("package generatedCode \ntype " + name + " "))
-
-	err := GetType(thing, name, w)
+	err := GetType(thing, "", w)
 	if err != nil {
-		return "", error
+		return "", err
 	}
 	w.Flush()
 	return b.String(), nil
