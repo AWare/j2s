@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"go/parser"
+	"go/printer"
+	"go/token"
 
 	"github.com/jmcvetta/napping"
 )
@@ -17,7 +19,7 @@ func TestLeaf(t *testing.T) {
 	var a pw
 	type leaf int
 	var x leaf
-	err := getType(x, "x", a)
+	err := GetType(x, "x", a)
 	if err != nil {
 		t.Error(err)
 	}
@@ -33,7 +35,7 @@ func TestArray(t *testing.T) {
 
 }
 
-func TestURL(t *testing.T) {
+func TestComplexJSON(t *testing.T) {
 	var result map[string]interface{}
 	var b bytes.Buffer
 	w := bufio.NewWriter(&b)
@@ -43,30 +45,35 @@ func TestURL(t *testing.T) {
 		t.Error(err)
 	}
 	if resp.Status() == 200 {
-		w.Write([]byte("type resp "))
-		err := getType(result, "", w)
+		w.Write([]byte("package main \ntype resp "))
+		err := GetType(result, "", w)
 		if err != nil {
 			t.Error(err)
 		}
 		w.Flush()
 		a := b.String()
-		e, err := parser.ParseExpr(a)
-		fmt.Println(a)
-		fmt.Println(err)
-		fmt.Println(e)
+		//	e, err := parser.ParseExpr(a)
+		fset := token.NewFileSet()
+		e, err := parser.ParseFile(fset, "", a, parser.AllErrors)
+		if err != nil {
+			t.Errorf("Source code generated was not valid go. ", err)
+		}
+
+		var p pw
+		printer.Fprint(p, fset, e)
 	}
 }
 
 func TestStruct(t *testing.T) {
 	m := make(map[string]interface{})
-	m["fart"] = "hello"
+	m["something"] = "hello"
 	m["cat"] = 5
 	n := make(map[string]interface{})
 	n["a"] = "b"
 	m["a"] = n
 	var b bytes.Buffer
 	w := bufio.NewWriter(&b)
-	getType(m, "x", w)
+	GetType(m, "x", w)
 	w.Flush()
 
 	fmt.Println(b.String())
@@ -76,7 +83,7 @@ func TestStruct(t *testing.T) {
 func runGenerator(t *testing.T, name string, thing interface{}) string {
 	var b bytes.Buffer
 	w := bufio.NewWriter(&b)
-	err := getType(thing, name, w)
+	err := GetType(thing, name, w)
 	if err != nil {
 		t.Error(err)
 	}
