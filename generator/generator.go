@@ -37,13 +37,12 @@ func GetType(input interface{}, name string, w io.Writer) error {
 	if input == nil {
 		return nil
 	}
-	w.Write([]byte(getExportableName(name)))
 	if name != "" {
 		defer w.Write([]byte("  `json:\"" + name + "\"`\n"))
 	}
 	switch input.(type) {
 	default:
-		w.Write([]byte(" " + reflect.TypeOf(input).Name()))
+		w.Write([]byte(getExportableName(name) + " " + reflect.TypeOf(input).Name()))
 		return nil
 	case map[string]interface{}:
 		return getTypes(input.(map[string]interface{}), name, w)
@@ -54,7 +53,7 @@ func GetType(input interface{}, name string, w io.Writer) error {
 }
 
 func getTypes(input map[string]interface{}, name string, w io.Writer) error {
-	w.Write([]byte(" struct {\n"))
+	w.Write([]byte(getExportableName(name) + " struct {\n"))
 	for k, v := range input {
 		err := GetType(v, k, w)
 		if err != nil {
@@ -67,7 +66,11 @@ func getTypes(input map[string]interface{}, name string, w io.Writer) error {
 }
 
 func getArrayTypes(input []interface{}, name string, w io.Writer) error {
-	w.Write([]byte("[]"))
+	if len(input) == 0 {
+		w.Write([]byte(fmt.Sprintf("//Empty array found with name: %s \n", name)))
+		return nil
+	}
+	w.Write([]byte(getExportableName(name) + " []"))
 	return GetType(input[0], "", w)
 }
 
