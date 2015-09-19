@@ -3,6 +3,7 @@ package generator
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -78,14 +79,27 @@ func TestComplexJSON(t *testing.T) {
 		fset := token.NewFileSet()
 		e, err := parser.ParseFile(fset, "", a, parser.AllErrors)
 		if err != nil {
-			t.Errorf("Source code generated was not valid go. ", err)
 		}
 
 		var p pw
 		printer.Fprint(p, fset, e)
 	}
 }
+func TestEmptyArray(t *testing.T) {
+	byt := []byte(`{"empty":[]}`)
 
+	var m map[string]interface{}
+	if err := json.Unmarshal(byt, &m); err != nil {
+		panic(err)
+	}
+	var b bytes.Buffer
+	w := bufio.NewWriter(&b)
+	GetType(m, "x", w)
+	w.Flush()
+
+	fmt.Println(b.String())
+
+}
 func TestStruct(t *testing.T) {
 	m := make(map[string]interface{})
 	m["something"] = "hello"
