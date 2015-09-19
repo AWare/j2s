@@ -23,9 +23,13 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	if response.Status() == 200 {
-		fmt.Print("HEY")
-		generator.WriteGo(result, name, w)
+	if response.Status() != 200 {
+		fmt.Println("Could not download JSON. Sorry.")
+		fmt.Println(response.Error)
+	}
+	err = generator.WriteGo(result, name, w)
+	if err != nil {
+		fmt.Print(err)
 	}
 
 }
