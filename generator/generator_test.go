@@ -79,6 +79,7 @@ func TestComplexJSON(t *testing.T) {
 		fset := token.NewFileSet()
 		e, err := parser.ParseFile(fset, "", a, parser.AllErrors)
 		if err != nil {
+			t.Errorf("Source code generated was not valid go. %s", err.Error())
 		}
 
 		var p pw
