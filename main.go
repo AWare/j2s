@@ -15,6 +15,7 @@ func main() {
 		return
 	}
 	url := args[1]
+	fmt.Println(url)
 	name := args[2]
 	var result map[string]interface{}
 	var w writeAndPrint
@@ -24,8 +25,7 @@ func main() {
 		return
 	}
 	if response.Status() != 200 {
-		fmt.Println("Could not download JSON. Sorry.")
-		fmt.Println(response.Error)
+		fmt.Printf("Could not download JSON. Sorry. \n The Server responded with: \n %v \n And HTTP status code: %v", response.RawText(), response.Status())
 	}
 	err = generator.WriteGo(result, name, w)
 	if err != nil {
